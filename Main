@@ -1,0 +1,171 @@
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String[] historial = new String[100]; // Historial de cálculos
+        int historialIndex = 0;
+        int opcion;
+
+        do {
+            mostrarMenu();
+            opcion = obtenerEntrada(scanner, 1, 8);
+
+            if (opcion == 8) {
+                System.out.println("Saliendo del programa...");
+                break;
+            }
+
+            if (opcion == 7) {
+                mostrarHistorial(historial, historialIndex);
+                continue;
+            }
+
+            if (opcion == 6) {
+                historialIndex = calcularPotencia(scanner, historial, historialIndex);
+                continue;
+            }
+
+            historialIndex = realizarCalculo(scanner, opcion, historial, historialIndex);
+        } while (opcion != 8);
+
+        scanner.close();
+    }
+
+    public static void mostrarMenu() {
+        System.out.println("\n--- Calculadora de Área, Perímetro y Potencia ---");
+        System.out.println("1. Círculo");
+        System.out.println("2. Cuadrado");
+        System.out.println("3. Triángulo");
+        System.out.println("4. Rectángulo");
+        System.out.println("5. Pentágono");
+        System.out.println("6. Potencia (base^exponente)");
+        System.out.println("7. Ver historial de cálculos");
+        System.out.println("8. Salir");
+        System.out.print("Seleccione una opción: ");
+    }
+
+    public static int obtenerEntrada(Scanner scanner, int min, int max) {
+        int entrada;
+        while (true) {
+            try {
+                entrada = scanner.nextInt();
+                scanner.nextLine();
+                if (entrada >= min && entrada <= max) return entrada;
+                System.out.printf("Por favor, ingrese un número entre %d y %d.\n", min, max);
+            } catch (Exception e) {
+                System.out.println("Entrada inválida. Ingrese un número válido.");
+                scanner.nextLine();
+            }
+        }
+    }
+
+    public static double obtenerDouble(Scanner scanner, String mensaje) {
+        double valor;
+        while (true) {
+            try {
+                System.out.print(mensaje);
+                valor = scanner.nextDouble();
+                scanner.nextLine();
+                return valor;
+            } catch (Exception e) {
+                System.out.println("Error: Ingrese un número válido.");
+                scanner.nextLine();
+            }
+        }
+    }
+
+    public static int elegirOperacion(Scanner scanner) {
+        System.out.println("¿Qué desea calcular?");
+        System.out.println("1. Área");
+        System.out.println("2. Perímetro");
+        System.out.print("Seleccione una opción: ");
+        return obtenerEntrada(scanner, 1, 2);
+    }
+
+    public static int realizarCalculo(Scanner scanner, int opcion, String[] historial, int historialIndex) {
+        int operacion = elegirOperacion(scanner);
+        double resultado = 0;
+        String descripcion = "";
+
+        switch (opcion) {
+            case 1: // Círculo
+                double r = obtenerDouble(scanner, "Ingrese el radio del círculo: ");
+                resultado = (operacion == 1) ? Math.PI * r * r : 2 * Math.PI * r;
+                descripcion = (operacion == 1) ? "Área del Círculo" : "Perímetro del Círculo";
+                break;
+            case 2: // Cuadrado
+                double l = obtenerDouble(scanner, "Ingrese el lado del cuadrado: ");
+                resultado = (operacion == 1) ? l * l : 4 * l;
+                descripcion = (operacion == 1) ? "Área del Cuadrado" : "Perímetro del Cuadrado";
+                break;
+            case 3: // Triángulo
+                if (operacion == 1) {
+                    double base = obtenerDouble(scanner, "Ingrese la base del triángulo: ");
+                    double altura = obtenerDouble(scanner, "Ingrese la altura del triángulo: ");
+                    resultado = (base * altura) / 2;
+                    descripcion = "Área del Triángulo";
+                } else {
+                    double lado1 = obtenerDouble(scanner, "Ingrese el primer lado del triángulo: ");
+                    double lado2 = obtenerDouble(scanner, "Ingrese el segundo lado del triángulo: ");
+                    double lado3 = obtenerDouble(scanner, "Ingrese el tercer lado del triángulo: ");
+                    resultado = lado1 + lado2 + lado3;
+                    descripcion = "Perímetro del Triángulo";
+                }
+                break;
+            case 4: // Rectángulo
+                double baseR = obtenerDouble(scanner, "Ingrese la base del rectángulo: ");
+                double alturaR = obtenerDouble(scanner, "Ingrese la altura del rectángulo: ");
+                resultado = (operacion == 1) ? baseR * alturaR : 2 * (baseR + alturaR);
+                descripcion = (operacion == 1) ? "Área del Rectángulo" : "Perímetro del Rectángulo";
+                break;
+            case 5: // Pentágono
+                double ladoP = obtenerDouble(scanner, "Ingrese el lado del pentágono: ");
+                if (operacion == 1) {
+                    double apotema = obtenerDouble(scanner, "Ingrese el apotema del pentágono: ");
+                    resultado = (5 * ladoP * apotema) / 2;
+                    descripcion = "Área del Pentágono";
+                } else {
+                    resultado = 5 * ladoP;
+                    descripcion = "Perímetro del Pentágono";
+                }
+                break;
+        }
+
+        System.out.printf("%s: %.2f\n", descripcion, resultado);
+        historial[historialIndex++] = descripcion + ": " + String.format("%.2f", resultado);
+        return historialIndex;
+    }
+
+    public static int calcularPotencia(Scanner scanner, String[] historial, int historialIndex) {
+        double base = obtenerDouble(scanner, "Ingrese la base: ");
+        int exponente;
+        while (true) {
+            exponente = (int) obtenerDouble(scanner, "Ingrese el exponente (número entero): ");
+            if (exponente >= 0) break;
+            System.out.println("Error: El exponente debe ser un número entero positivo.");
+        }
+
+        double resultado = potenciaRecursiva(base, exponente);
+        String descripcion = "Potencia de " + base + "^" + exponente;
+        System.out.printf("%s: %.2f\n", descripcion, resultado);
+        historial[historialIndex++] = descripcion + ": " + String.format("%.2f", resultado);
+        return historialIndex;
+    }
+
+    public static double potenciaRecursiva(double base, int exponente) {
+        if (exponente == 0) return 1;
+        return base * potenciaRecursiva(base, exponente - 1);
+    }
+
+    public static void mostrarHistorial(String[] historial, int historialIndex) {
+        System.out.println("\n--- Historial de Cálculos ---");
+        if (historialIndex == 0) {
+            System.out.println("No hay cálculos almacenados.");
+        } else {
+            for (int i = 0; i < historialIndex; i++) {
+                System.out.printf("%d. %s\n", i + 1, historial[i]);
+            }
+        }
+    }
+}
